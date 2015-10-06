@@ -1,23 +1,25 @@
-package library.panels;
-
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+package library.panels.borrow;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
-import javax.swing.JButton;
-import javax.swing.JLabel;
+
 import library.interfaces.IBorrowUIListener;
 
+import javax.swing.JButton;
+import javax.swing.JLabel;
 
-public class ScanningPanel extends ABorrowPanel {
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class RestrictedPanel extends ABorrowPanel {
 
 	private static final long serialVersionUID = 1L;
+	private JLabel lblBorrowerId;
 	private JLabel lblBorrowerName;
 	private JLabel lblBorrowerContact;
 	private JLabel lblOverdue;
@@ -27,14 +29,11 @@ public class ScanningPanel extends ABorrowPanel {
 	private JButton btnCancel;
 	private JTextArea existingLoanListTA;
 	private JLabel lblErrMesg;
-	private JTextArea currentBookTA;
-	private JTextArea pendingLoanListTA;
-	
 
 	/**
 	 * Create the panel.
 	 */
-	public ScanningPanel(IBorrowUIListener listener) {
+	public RestrictedPanel(final IBorrowUIListener listener) {
 		setLayout(null);
 		setBorder(new TitledBorder(null, "Scanning", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		setBounds(12, 23, 460, 640);
@@ -55,7 +54,7 @@ public class ScanningPanel extends ABorrowPanel {
 		pendingLoanListSCL.setBounds(10, 18, 394, 96);
 		panel_4.add(pendingLoanListSCL);
 		
-		pendingLoanListTA = new JTextArea();
+		JTextArea pendingLoanListTA = new JTextArea();
 		pendingLoanListTA.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		pendingLoanListSCL.setViewportView(pendingLoanListTA);
 		
@@ -69,7 +68,7 @@ public class ScanningPanel extends ABorrowPanel {
 		currentBookSCL.setBounds(10, 18, 394, 60);
 		panel_5.add(currentBookSCL);
 		
-		currentBookTA = new JTextArea();
+		JTextArea currentBookTA = new JTextArea();
 		currentBookTA.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		currentBookTA.setEditable(false);
 		currentBookSCL.setViewportView(currentBookTA);
@@ -80,23 +79,33 @@ public class ScanningPanel extends ABorrowPanel {
 		panel_3.setBounds(10, 25, 434, 252);
 		this.add(panel_3);
 		
+		JLabel lbl_11 = new JLabel("Id: ");
+		lbl_11.setBounds(12, 20, 20, 14);
+		panel_3.add(lbl_11);
+		
+		lblBorrowerId = new JLabel("123");
+		lblBorrowerId.setForeground(Color.BLUE);
+		lblBorrowerId.setBackground(Color.LIGHT_GRAY);
+		lblBorrowerId.setBounds(32, 20, 46, 14);
+		panel_3.add(lblBorrowerId);
+		
 		JLabel label = new JLabel("Name: ");
-		label.setBounds(10, 21, 46, 14);
+		label.setBounds(81, 20, 46, 14);
 		panel_3.add(label);
 		
 		lblBorrowerName = new JLabel("Fred Nurke");
 		lblBorrowerName.setForeground(Color.BLUE);
 		lblBorrowerName.setBackground(Color.LIGHT_GRAY);
-		lblBorrowerName.setBounds(54, 21, 153, 14);
+		lblBorrowerName.setBounds(126, 21, 156, 14);
 		panel_3.add(lblBorrowerName);
 		
 		JLabel label_2 = new JLabel("Contact:");
-		label_2.setBounds(217, 21, 56, 14);
+		label_2.setBounds(282, 21, 56, 14);
 		panel_3.add(label_2);
 		
 		lblBorrowerContact = new JLabel("02 63384931");
 		lblBorrowerContact.setForeground(Color.BLUE);
-		lblBorrowerContact.setBounds(268, 21, 146, 14);
+		lblBorrowerContact.setBounds(338, 21, 86, 14);
 		panel_3.add(lblBorrowerContact);
 		
 		JPanel panel_6 = new JPanel();
@@ -148,6 +157,7 @@ public class ScanningPanel extends ABorrowPanel {
 		btnCompleted.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnCompleted.setBounds(69, 544, 127, 35);
 		add(btnCompleted);
+		btnCompleted.setEnabled(false);
 		
 		btnCancel = new JButton("Cancel");
 		btnCancel.addActionListener(new ActionListener() {
@@ -167,54 +177,45 @@ public class ScanningPanel extends ABorrowPanel {
 		
 	}
 
-
 	@Override
 	public void displayMemberDetails(int memberID, String memberName, String memberPhone) {
-		lblBorrowerName.setText(memberID + " " + memberName);
+		lblBorrowerId.setText(Integer.valueOf(memberID).toString());
+		lblBorrowerName.setText(memberName);
 		lblBorrowerContact.setText(memberPhone);
 	}
 
-
 	@Override
-	public void displayExistingLoan(String loanDetails) {
-		insertStringInTA(loanDetails, existingLoanListTA, true);
+	public void displayOverDueMessage() {
+		lblOverdue.setText("Borrower has overdue loans");
 	}
-	
 
+	
+	@Override
+	public void displayAtLoanLimitMessage() {
+		lblLoanLimit.setText("Borrower has reached maximum number of borrowed items");
+	}
+
+	
 	@Override
 	public void displayOutstandingFineMessage(float amountOwing) {
 		lblFineLimit.setText(String.format("Borrower has outstanding fines. Amount owing: $%.2f", amountOwing ));
 	}
-	
-
-	@Override
-	public void displayScannedBookDetails(String bookDetails) {
-		insertStringInTA(bookDetails, currentBookTA, false);
-	}
 
 
-	@Override
-	public void displayPendingLoan(String loanDetails) {
-		insertStringInTA(loanDetails, pendingLoanListTA, true);
-	}
-
-	private void insertStringInTA(String string, JTextArea ta, boolean append) {
-		StringBuilder bld = new StringBuilder();
-		if (append) {
-			bld.append(ta.getText());
-		}
-		if (bld.length() > 0) {
-			bld.append("\n\n");
-		}
-		bld.append(string);
-		ta.setText(bld.toString());
-		ta.setCaretPosition(0);		
+ 	@Override
+	public void displayOverFineLimitMessage(float amountOwing) {
+		lblFineLimit.setText(String.format("Borrower has exceeded fine limit. Amount owing: $%.2f", amountOwing ));
 	}
 	
+	@Override
+	public void displayExistingLoan(String loanDetails) {
+		existingLoanListTA.setText(loanDetails);
+		existingLoanListTA.setCaretPosition(0);		
+	}
+
 	@Override
 	public void displayErrorMessage(String errorMesg) {
 		lblErrMesg.setText(errorMesg);		
 	}
-	
 
 }
