@@ -5,13 +5,39 @@ import java.util.Date;
 import library.interfaces.entities.IBook;
 import library.interfaces.entities.ILoan;
 import library.interfaces.entities.IMember;
+import library.interfaces.entities.ELoanState;
+
 
 public class Loan implements ILoan {
 
+	IBook _book;
+	IMember _borrower;
+	Date _borrowDate, _dueDate;	
+	ELoanState _state;
+	
+	public Loan(IBook book, IMember borrower, Date borrowDate, Date dueDate) {
+		if (book == null ||
+				borrower == null ||
+				borrowDate == null ||
+				dueDate == null )
+			throw new IllegalArgumentException("Loan parameters cannot be null.");
+		if (dueDate.compareTo(borrowDate) < 0)
+			throw new IllegalArgumentException("Due date cannot be earlier than borrow date.");
+			
+		_book = book;
+		_borrower = borrower;
+		_borrowDate = borrowDate;
+		_dueDate = dueDate;
+		_state = ELoanState.PENDING;
+	}
+	
 	@Override
-	public void commit(int id) {
-		// TODO Auto-generated method stub
-
+	public void commit(int loanId) {
+		if(loanId < 0)
+			throw new IllegalArgumentException("Loan ID cannot be less than zero.");
+		if (_state != ELoanState.PENDING)
+			throw new RuntimeException("Loan 'state' not pending." + _state);
+		_state = ELoanState.CURRENT;
 	}
 
 	@Override
@@ -22,8 +48,7 @@ public class Loan implements ILoan {
 	
 	@Override
 	public boolean isCurrent() {
-		// TODO Auto-generated method stub
-		return false;
+		return _state == ELoanState.CURRENT;
 	}
 
 	@Override
