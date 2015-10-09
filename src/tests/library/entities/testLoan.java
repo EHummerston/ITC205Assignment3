@@ -3,6 +3,7 @@ package tests.library.entities;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -101,49 +102,26 @@ public class testLoan {
 		assertTrue(_loan.isCurrent());
 	}
 	
+	@Test (expected = RuntimeException.class)
+	public void commit_StateNotPending_RuntimeException () {
+		_loan.commit(1);
+		assertTrue(_loan.isCurrent());
+		_loan.commit(1);
+	}
+	
+	@Test
+	public void commit_VerifyMethods_NoException () {
+		int loanId = 1;
+		_loan.commit(loanId);
+		verify(_book).borrow(_loan);
+		verify(_borrower).addLoan(_loan);
+		assertTrue(_loan.isCurrent());
+		assertTrue(_loan.getID() == loanId);
+	}
+	
 	@Test
 	public void isCurrent_StatePending_NoException () {
 		assertFalse(_loan.isCurrent());
 	}
-/*
-	@Test
-	public void testCommit() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testComplete() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testIsCurrent() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testIsOverDue() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testCheckOverDue() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetBorrower() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetBook() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetID() {
-		fail("Not yet implemented");
-	}
-*/
+	
 }

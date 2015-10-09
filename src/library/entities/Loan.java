@@ -14,6 +14,7 @@ public class Loan implements ILoan {
 	IMember _borrower;
 	Date _borrowDate, _dueDate;	
 	ELoanState _state;
+	int _loanId;
 	
 	public Loan(IBook book, IMember borrower, Date borrowDate, Date dueDate) {
 		if (book == null ||
@@ -37,6 +38,12 @@ public class Loan implements ILoan {
 			throw new IllegalArgumentException("Loan ID cannot be less than zero.");
 		if (_state != ELoanState.PENDING)
 			throw new RuntimeException("Loan 'state' not pending." + _state);
+		
+		_loanId = loanId;
+		
+		_book.borrow(this);
+		_borrower.addLoan(this);
+		
 		_state = ELoanState.CURRENT;
 	}
 
@@ -53,8 +60,7 @@ public class Loan implements ILoan {
 
 	@Override
 	public boolean isOverDue() {
-		// TODO Auto-generated method stub
-		return false;
+		return _state == ELoanState.OVERDUE;
 	}
 
 	@Override
@@ -77,8 +83,7 @@ public class Loan implements ILoan {
 
 	@Override
 	public int getID() {
-		// TODO Auto-generated method stub
-		return 0;
+		return _loanId;
 	}
 
 }
