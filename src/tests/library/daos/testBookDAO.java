@@ -6,7 +6,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 import library.daos.BookMapDAO;
 import library.interfaces.daos.IBookHelper;
@@ -64,6 +64,12 @@ public class testBookDAO {
 		verify(_helper).makeBook(any(String.class), any(String.class), any(String.class), argument.capture());
 		
 		assertEquals(_book, _bookDao.getBookByID(argument.getValue()));
+	}
+	
+	@Test
+	public void getBookByID_BookNotFound_ReturnNull () {
+		verifyZeroInteractions(_helper);
+		assertEquals(_bookDao.getBookByID(0),(IBook)null);
 	}
 
 }

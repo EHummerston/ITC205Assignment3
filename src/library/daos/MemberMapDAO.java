@@ -6,7 +6,6 @@ import java.util.Map;
 
 import library.interfaces.daos.IMemberDAO;
 import library.interfaces.daos.IMemberHelper;
-import library.interfaces.entities.IBook;
 import library.interfaces.entities.IMember;
 
 public class MemberMapDAO implements IMemberDAO {

@@ -27,8 +27,9 @@ IScannerListener,
 IBorrowUIListener {
 
 	private ICardReader _reader;
-	private IScanner _scanner; 
-	private IPrinter _printer; 
+	private IScanner _scanner;
+	@SuppressWarnings("unused")
+	private IPrinter _printer;
 	private IDisplay _display;
 	//private String state;
 	private int _scanCount = 0;
@@ -54,6 +55,7 @@ IBorrowUIListener {
 
 		_reader = reader;
 		_scanner = scanner;
+		_printer = printer;
 
 		_bookDAO = bookDAO;
 		_loanDAO = loanDAO;
