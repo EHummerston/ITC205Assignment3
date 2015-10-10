@@ -26,21 +26,21 @@ public class BorrowUC_CTL implements ICardReaderListener,
 									 IScannerListener, 
 									 IBorrowUIListener {
 	
-	private ICardReader reader;
-	private IScanner scanner; 
-	private IPrinter printer; 
-	private IDisplay display;
+	private ICardReader _reader;
+	private IScanner _scanner; 
+	private IPrinter _printer; 
+	private IDisplay _display;
 	//private String state;
-	private int scanCount = 0;
-	private IBorrowUI ui;
-	private EBorrowState state; 
-	private IBookDAO bookDAO;
-	private IMemberDAO memberDAO;
-	private ILoanDAO loanDAO;
+	private int _scanCount = 0;
+	private IBorrowUI _ui;
+	private EBorrowState _state; 
+	private IBookDAO _bookDAO;
+	private IMemberDAO _memberDAO;
+	private ILoanDAO _loanDAO;
 	
-	private List<IBook> bookList;
-	private List<ILoan> loanList;
-	private IMember borrower;
+	private List<IBook> _bookList;
+	private List<ILoan> _loanList;
+	private IMember _borrower;
 	
 	private JPanel previous;
 
@@ -49,35 +49,54 @@ public class BorrowUC_CTL implements ICardReaderListener,
 			IPrinter printer, IDisplay display,
 			IBookDAO bookDAO, ILoanDAO loanDAO, IMemberDAO memberDAO ) {
 
-		this.display = display;
-		this.ui = new BorrowUC_UI(this);
-		state = EBorrowState.CREATED;
+		this._display = display;
+		this._ui = new BorrowUC_UI(this);
+		
+		_reader = reader;
+		_scanner = scanner;
+		
+		_state = EBorrowState.CREATED;
+		//state = EBorrowState.SCANNING_BOOKS;
 	}
 	
 	public void initialise() {
-		previous = display.getDisplay();
-		display.setDisplay((JPanel) ui, "Borrow UI");		
+		previous = _display.getDisplay();
+		_display.setDisplay((JPanel) _ui, "Borrow UI");
+		_reader.addListener(this);
+		_scanner.addListener(this);
+		
+		_reader.setEnabled(true);
+		this.setState(EBorrowState.INITIALIZED);
 	}
 	
 	public void close() {
-		display.setDisplay(previous, "Main Menu");
+		_display.setDisplay(previous, "Main Menu");
+		System.out.println("close");
 	}
 
 	@Override
 	public void cardSwiped(int memberID) {
-		throw new RuntimeException("Not implemented yet");
+		//TODO Not implemented yet.
+		_reader.setEnabled(false);
+		_scanner.setEnabled(true);
+		this.setState(EBorrowState.SCANNING_BOOKS);
 	}
 	
 	
 	
 	@Override
 	public void bookScanned(int barcode) {
-		throw new RuntimeException("Not implemented yet");
+		if(_state!=EBorrowState.SCANNING_BOOKS)
+			throw new RuntimeException("System not it state: Scanning Books.");
+		
+		
+		
 	}
 
 	
 	private void setState(EBorrowState state) {
-		throw new RuntimeException("Not implemented yet");
+		_state = state;
+		_ui.setState(state);
 	}
 
 	@Override

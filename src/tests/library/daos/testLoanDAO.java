@@ -76,6 +76,15 @@ public class testLoanDAO {
 		_loanDao.commitLoan(loan);
 		verify(loan).commit(argument.capture());
 		assertEquals(_loanDao.getLoanByID(argument.getValue()),loan);
-		
+	}
+	
+	@Test
+	public void getLoanById_NoneFound_ReturnsNull () {
+		assertEquals(_loanDao.getLoanByID(0),null);
+	}
+	
+	@Test
+	public void getLoanByBook_NoneFound_ReturnsNull () {
+		assertEquals(_loanDao.getLoanByBook(mock(IBook.class)),null);
 	}
 }

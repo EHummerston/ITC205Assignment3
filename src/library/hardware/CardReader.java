@@ -22,7 +22,7 @@ public class CardReader extends JFrame implements ICardReader {
 	private static final long serialVersionUID = 1L;
 	private JTextField textField;
 	private JButton btnReadCard;
-	private ICardReaderListener listener;
+	private ICardReaderListener _listener;
 
 	public CardReader() {
 		setTitle("Card Reader");
@@ -61,7 +61,7 @@ public class CardReader extends JFrame implements ICardReader {
 		btnReadCard = new JButton("Swipe Card");
 		btnReadCard.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (listener == null) {
+				if (_listener == null) {
 					throw new RuntimeException("CardReader: listener is null");
 				}
 				String text = textField.getText();
@@ -70,7 +70,7 @@ public class CardReader extends JFrame implements ICardReader {
 					if (memberId <= 0) {
 						throw new NumberFormatException();
 					}
-					listener.cardSwiped(memberId);
+					_listener.cardSwiped(memberId);
 				}
 				catch (NumberFormatException e) {
 					//e.printStackTrace(System.err);
@@ -95,6 +95,6 @@ public class CardReader extends JFrame implements ICardReader {
 
 	@Override
 	public void addListener(ICardReaderListener listener) {
-		this.listener = listener;		
+		this._listener = listener;		
 	}
 }

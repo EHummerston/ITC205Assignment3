@@ -35,6 +35,9 @@ public class BorrowUC_UI extends JPanel implements IBorrowUI {
 		addPanel(new ConfirmLoanPanel(listener), EBorrowState.CONFIRMING_LOANS);
 		//addPanel(new CancelledPanel(),           EBorrowState.CANCELLED);
 		//addPanel(new CompletedPanel(),           EBorrowState.COMPLETED);
+		
+		//setState(EBorrowState.SCANNING_BOOKS);
+		//listener.
 	}
 	
 	private void addPanel(ABorrowPanel panel, EBorrowState state) {
@@ -46,7 +49,7 @@ public class BorrowUC_UI extends JPanel implements IBorrowUI {
 	@Override
 	public void setState(EBorrowState state) {
 		CardLayout cl = (CardLayout) (this.getLayout());
-
+		
 		switch (state) {
 		case INITIALIZED:
 			cl.show(this, state.toString());
