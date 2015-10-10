@@ -86,4 +86,8 @@ public class Loan implements ILoan {
 		return _loanId;
 	}
 
+	@Override
+	public String toString() {
+		return _book.toString() + " - " + _borrower.toString() + " (" + _borrowDate.toString() + " to " + _dueDate.toString() + ")";
+	}
 }

@@ -23,9 +23,9 @@ import library.interfaces.hardware.IScanner;
 import library.interfaces.hardware.IScannerListener;
 
 public class BorrowUC_CTL implements ICardReaderListener, 
-									 IScannerListener, 
-									 IBorrowUIListener {
-	
+IScannerListener, 
+IBorrowUIListener {
+
 	private ICardReader _reader;
 	private IScanner _scanner; 
 	private IPrinter _printer; 
@@ -37,11 +37,11 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	private IBookDAO _bookDAO;
 	private IMemberDAO _memberDAO;
 	private ILoanDAO _loanDAO;
-	
+
 	private List<IBook> _bookList;
 	private List<ILoan> _loanList;
 	private IMember _borrower;
-	
+
 	private JPanel previous;
 
 
@@ -51,24 +51,29 @@ public class BorrowUC_CTL implements ICardReaderListener,
 
 		this._display = display;
 		this._ui = new BorrowUC_UI(this);
-		
+
 		_reader = reader;
 		_scanner = scanner;
-		
+
+		_bookDAO = bookDAO;
+		_loanDAO = loanDAO;
+		_memberDAO = memberDAO;
+
 		_state = EBorrowState.CREATED;
-		//state = EBorrowState.SCANNING_BOOKS;
 	}
-	
+
 	public void initialise() {
 		previous = _display.getDisplay();
 		_display.setDisplay((JPanel) _ui, "Borrow UI");
 		_reader.addListener(this);
 		_scanner.addListener(this);
-		
+
 		_reader.setEnabled(true);
 		this.setState(EBorrowState.INITIALIZED);
+
+		cardSwiped(0);
 	}
-	
+
 	public void close() {
 		_display.setDisplay(previous, "Main Menu");
 		System.out.println("close");
@@ -76,24 +81,71 @@ public class BorrowUC_CTL implements ICardReaderListener,
 
 	@Override
 	public void cardSwiped(int memberID) {
-		//TODO Not implemented yet.
+		// TODO Not implemented yet
+		
 		_reader.setEnabled(false);
 		_scanner.setEnabled(true);
+		_bookList = new ArrayList<>();
+		_loanList = new ArrayList<>();
+		_borrower = _memberDAO.getMemberByID(2);
 		this.setState(EBorrowState.SCANNING_BOOKS);
+		_ui.displayMemberDetails(_borrower.getID(), _borrower.getLastName() + ", " + _borrower.getFirstName(), _borrower.getContactPhone());
 	}
-	
-	
-	
+
+
 	@Override
 	public void bookScanned(int barcode) {
 		if(_state!=EBorrowState.SCANNING_BOOKS)
-			throw new RuntimeException("System not it state: Scanning Books.");
-		
-		
-		
+			throw new RuntimeException("System not in state: Scanning Books.");
+
+		IBook scannedBook = _bookDAO.getBookByID(barcode);
+		System.out.println("Scanned for book (Book ID: " + barcode + ")");
+
+
+		if(scannedBook == null)
+		{
+			//book not found
+			System.out.println("Scanned book not found (Book ID: " + barcode + ")");
+		}
+		else
+		{
+			//book in system
+			System.out.println(scannedBook.toString() + " - " + scannedBook.getState().toString());
+
+			if(scannedBook.getState()!=EBookState.AVAILABLE)
+			{
+				//book not available
+				System.out.println("Scanned book not available.");
+			}
+			else if(_bookList.contains(scannedBook))
+			{
+				//book already scanned
+				System.out.println("Book already scanned");
+			}
+			else
+			{
+				_loanList.add(_loanDAO.createLoan(_borrower, scannedBook));
+				_bookList.add(scannedBook);
+				_scanCount++;
+
+				if(_scanCount < IMember.LOAN_LIMIT)
+				{
+					_ui.displayScannedBookDetails(scannedBook.toString());				
+					_ui.displayPendingLoan(buildLoanListDisplay(_loanList));
+				}
+				else
+				{
+					scansCompleted();
+				}
+
+			}
+
+
+		}
+
 	}
 
-	
+
 	private void setState(EBorrowState state) {
 		_state = state;
 		_ui.setState(state);
@@ -103,19 +155,24 @@ public class BorrowUC_CTL implements ICardReaderListener,
 	public void cancelled() {
 		close();
 	}
-	
+
 	@Override
 	public void scansCompleted() {
-		throw new RuntimeException("Not implemented yet");
+		
+		setState(EBorrowState.CONFIRMING_LOANS);
+		_ui.displayConfirmingLoan(buildLoanListDisplay(_loanList));
+		
 	}
 
 	@Override
 	public void loansConfirmed() {
+		// TODO Not implemented yet
 		throw new RuntimeException("Not implemented yet");
 	}
 
 	@Override
 	public void loansRejected() {
+		// TODO Not implemented yet
 		throw new RuntimeException("Not implemented yet");
 	}
 
